@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* Desain asli Anda */
+        /* Desain asli sesuai file Anda */
         body { 
             background: #050505; 
             color: white; 
             font-family: sans-serif; 
-            /* Keamanan: Mencegah sorot teks (Anti-Copy) */
+            /* Tambahan Keamanan: Anti-Copy */
             user-select: none; 
             -webkit-user-select: none;
         }
@@ -38,7 +38,7 @@
             
             <div id="auth-box">
                 <div id="g_id_onload"
-                    /* API Client ID Baru Anda */
+                    /* Update API Client ID Baru */
                     data-client_id="502358231350-pr4t7jj775ckcu64n8stfeq6qkesjr15.apps.googleusercontent.com"
                     data-callback="handleCredentialResponse"
                     data-auto_prompt="false">
@@ -58,21 +58,19 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
-        // KEAMANAN: Memblokir F12, Ctrl+U, dan Inspect Element
+        // Tambahan Keamanan: Anti-Inspect (F12, Ctrl+U, Ctrl+Shift+I)
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
 
-        // Fungsi Handle Login Google
         function handleCredentialResponse(response) {
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
             localStorage.setItem('user_nofast', JSON.stringify(payload));
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User Setelah Login
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -84,16 +82,17 @@
                 </div>`;
         }
 
-        // Fungsi Logout
         function logout() {
             localStorage.removeItem('user_nofast');
             location.reload();
         }
 
-        // Fungsi Load Halaman Dinamis
+        // Jalur Pemanggilan Halaman
         async function loadPage(page) {
             try {
-                const res = await fetch(`pages/${page}.html`);
+                /* Karena index.html & folder pages sama-sama di dalam public, 
+                   maka jalurnya langsung ke 'pages/' */
+                const res = await fetch(`pages/${page}.html`); 
                 if (!res.ok) throw new Error('Halaman tidak ditemukan');
                 
                 const html = await res.text();
@@ -112,7 +111,6 @@
             }
         }
 
-        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
