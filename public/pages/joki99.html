@@ -1,0 +1,168 @@
+<div class="flex flex-col lg:flex-row gap-10 animate-fade-in">
+    <div class="flex-grow space-y-12">
+        <section>
+            <h2 class="text-2xl font-black mb-8 tracking-tight flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center"><i class="fas fa-gem text-blue-500"></i></div>
+                DIAMOND PACKAGE
+            </h2>
+            <div id="diamond-grid" class="grid grid-cols-2 md:grid-cols-3 gap-5"></div>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-black mb-8 tracking-tight flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-600/20 rounded-xl flex items-center justify-center"><i class="fas fa-tree text-green-500"></i></div>
+                SURVIVAL DAYS
+            </h2>
+            <div id="days-grid" class="grid grid-cols-2 md:grid-cols-3 gap-5"></div>
+        </section>
+    </div>
+
+    <div class="w-full lg:w-[420px]">
+        <div id="cart-box" class="bg-[#0a0a0a] border border-white/10 p-8 rounded-[2.5rem] hidden sticky top-28 shadow-2xl">
+            <h3 class="font-black text-xs mb-8 uppercase tracking-[0.2em] text-blue-500">Detail Transaksi</h3>
+            
+            <div id="cart-list" class="space-y-3 mb-8 max-h-40 overflow-y-auto pr-2 border-b border-white/5 pb-6"></div>
+            
+            <div class="flex justify-between font-black text-2xl mb-8">
+                <span class="text-gray-500 text-xs self-center uppercase tracking-widest">Total Bayar</span>
+                <span id="cart-total" class="text-white">Rp 0</span>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="r-user" placeholder="Username/Email" class="bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500 w-full transition-all">
+                    <input type="password" id="r-pass" placeholder="Password" class="bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500 w-full transition-all">
+                </div>
+                
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-3">Keamanan Akun (A2F / 2FA)</label>
+                    <select id="r-a2f" class="w-full bg-transparent text-sm font-bold outline-none cursor-pointer">
+                        <option value="OFF" class="bg-black">A2F Matikan (Lebih Cepat)</option>
+                        <option value="ON" class="bg-black">A2F Nyala (Siap Beri Kode)</option>
+                    </select>
+                </div>
+
+                <textarea id="r-note" placeholder="Catatan untuk penjoki (Contoh: Bang, tolong sisakan item X...)" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500 h-24 transition-all"></textarea>
+                
+                <div class="relative group">
+                    <div class="bg-blue-600/10 border-2 border-dashed border-blue-600/30 p-4 rounded-2xl text-center group-hover:border-blue-500 transition-all">
+                        <i class="fas fa-cloud-upload-alt text-blue-500 mb-2"></i>
+                        <p id="file-name" class="text-[10px] font-bold text-gray-400 uppercase italic">Upload Bukti Pembayaran</p>
+                        <input type="file" id="r-proof" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="updateFileName(this)">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="checkout()" class="w-full bg-blue-600 py-5 rounded-[1.8rem] font-black text-xs tracking-[0.2em] shadow-xl shadow-blue-900/40 hover:bg-blue-500 transition-all active:scale-95">
+                KIRIM KE WHATSAPP
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="q-modal" class="fixed inset-0 bg-black/98 hidden z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+    <div class="bg-white p-10 rounded-[3rem] text-center max-w-sm w-full">
+        <div class="brand-logo text-black font-black mb-2 italic">NO <span class="text-blue-600">FA$T</span></div>
+        <p class="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-6">Scan QRIS Dibawah Ini</p>
+        <img src="qris.png" class="w-full rounded-2xl mb-6 shadow-2xl">
+        <div class="text-black font-black text-3xl mb-8 tracking-tighter" id="q-total"></div>
+        <button onclick="document.getElementById('q-modal').classList.add('hidden')" class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg">SAYA SUDAH TRANSFER</button>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+
+    function renderGrid() {
+        let dHtml = ""; 
+        for(let i=50; i<=600; i+=50) { 
+            let p = (i/50)*10000; 
+            dHtml += `<div class="bg-white/5 p-8 rounded-[2.5rem] text-center border border-transparent hover:border-blue-500 transition-all cursor-pointer group shadow-lg" onclick="addToCart('${i} Diamond', ${p})">
+                        <img src="https://img.icons8.com/isometric/100/diamond.png" class="w-14 mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <div class="font-black text-lg">${i}D</div>
+                        <div class="text-blue-500 text-[10px] font-black">Rp ${p.toLocaleString()}</div>
+                      </div>`; 
+        }
+        document.getElementById('diamond-grid').innerHTML = dHtml;
+
+        let sHtml = ""; 
+        for(let i=100; i<=1000; i+=100) { 
+            let p = (i/100)*8000; 
+            sHtml += `<div class="bg-white/5 p-8 rounded-[2.5rem] text-center border border-transparent hover:border-green-500 transition-all cursor-pointer group shadow-lg" onclick="addToCart('${i} Days', ${p})">
+                        <img src="https://img.icons8.com/isometric/100/forest.png" class="w-14 mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <div class="font-black text-lg">${i} Days</div>
+                        <div class="text-green-500 text-[10px] font-black">Rp ${p.toLocaleString()}</div>
+                      </div>`; 
+        }
+        document.getElementById('days-grid').innerHTML = sHtml;
+    }
+
+    function updateFileName(input) {
+        const name = input.files[0] ? input.files[0].name : "Upload Bukti Pembayaran";
+        document.getElementById('file-name').innerText = name;
+        document.getElementById('file-name').classList.add('text-blue-500');
+    }
+
+    function addToCart(n, p) { 
+        cart.push({n, p}); 
+        updateCart(); 
+        document.getElementById('cart-box').classList.remove('hidden');
+        document.getElementById('cart-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function updateCart() {
+        const l = document.getElementById('cart-list'); let t = 0; l.innerHTML = "";
+        cart.forEach((item, i) => { 
+            t += item.p; 
+            l.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5"><span class="text-[10px] font-black uppercase">${item.n}</span><button onclick="removeItem(${i})" class="text-red-500 text-xs"><i class="fas fa-trash"></i></button></div>`; 
+        });
+        document.getElementById('cart-total').innerText = "Rp " + t.toLocaleString();
+        document.getElementById('q-total').innerText = "Rp " + t.toLocaleString();
+    }
+
+    function removeItem(i) {
+        cart.splice(i, 1);
+        if(cart.length === 0) document.getElementById('cart-box').classList.add('hidden');
+        updateCart();
+    }
+
+    function checkout() { 
+        const u = document.getElementById('r-user').value;
+        const p = document.getElementById('r-pass').value;
+        const file = document.getElementById('r-proof').files[0];
+
+        if(!u || !p) return alert("❌ Lengkapi Username & Password!");
+        if(!file) return alert("❌ Harap upload bukti transfer terlebih dahulu!");
+
+        document.getElementById('q-modal').classList.remove('hidden');
+        
+        // Timer sedikit agar user sempat lihat QRIS sebelum ke WA
+        setTimeout(() => {
+            confirmWA();
+        }, 5000); 
+    }
+
+    function confirmWA() {
+        const u = document.getElementById('r-user').value;
+        const p = document.getElementById('r-pass').value;
+        const a2f = document.getElementById('r-a2f').value;
+        const note = document.getElementById('r-note').value || "-";
+        
+        const msg = `*NO FA$T - ORDER JOKI*\n` +
+                    `━━━━━━━━━━━━━━━\n` +
+                    `📦 *ITEM:* ${cart.map(i=>i.n).join(", ")}\n` +
+                    `💰 *TOTAL:* ${document.getElementById('cart-total').innerText}\n` +
+                    `━━━━━━━━━━━━━━━\n` +
+                    `👤 *USER:* ${u}\n` +
+                    `🔑 *PASS:* ${p}\n` +
+                    `🛡️ *A2F:* ${a2f}\n` +
+                    `📝 *NOTE:* ${note}\n` +
+                    `━━━━━━━━━━━━━━━\n` +
+                    `✅ *BUKTI TF:* (Telah di-upload di web)`;
+        
+        window.location.href = `https://wa.me/6285737668457?text=${encodeURIComponent(msg)}`;
+    }
+
+    renderGrid();
+</script>
+

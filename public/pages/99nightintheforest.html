@@ -1,0 +1,157 @@
+<div class="animate-fade pb-20">
+    <button onclick="loadPage('katalog')" class="mb-10 text-gray-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition flex items-center gap-2">
+        <i class="fas fa-arrow-left"></i> Kembali ke Katalog
+    </button>
+    
+    <div class="flex flex-col lg:flex-row gap-12">
+        <div class="flex-grow space-y-16">
+            <section>
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-10 h-10 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                        <i class="fas fa-gem text-blue-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-white">DIAMOND <span class="text-blue-500">PACKAGES</span></h2>
+                </div>
+                <div id="grid-diamond" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+            </section>
+
+            <section>
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-10 h-10 bg-green-600/20 rounded-2xl flex items-center justify-center border border-green-500/30">
+                        <i class="fas fa-tree text-green-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-white">SURVIVAL <span class="text-green-500">DAYS</span></h2>
+                </div>
+                <div id="grid-days" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+            </section>
+        </div>
+
+        <div class="w-full lg:w-[420px]">
+            <div id="checkout-99" class="hidden space-y-6 sticky top-28">
+                <div class="bg-white/5 border border-white/10 p-8 rounded-[3rem] shadow-2xl">
+                    <div class="flex justify-between items-start mb-6 text-white">
+                        <div>
+                            <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Items Selected</p>
+                            <p id="list-beli" class="text-xs font-bold uppercase leading-relaxed"></p>
+                        </div>
+                        <button onclick="resetCart()" class="text-gray-600 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                    <div id="total-beli" class="text-4xl font-black tracking-tighter mb-8 text-white">Rp 0</div>
+                    
+                    <div class="space-y-3">
+                        <input type="text" id="rob-u" placeholder="USERNAME" class="w-full bg-black/50 border border-white/10 p-5 rounded-2xl text-[10px] font-bold text-white outline-none focus:border-blue-500 uppercase tracking-widest">
+                        <input type="password" id="rob-p" placeholder="PASSWORD" class="w-full bg-black/50 border border-white/10 p-5 rounded-2xl text-[10px] font-bold text-white outline-none focus:border-blue-500 uppercase tracking-widest">
+                        
+                        <div class="flex items-center justify-between bg-black/30 p-4 rounded-2xl border border-white/5 mt-4">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">A2F / PIN</span>
+                            <div class="flex gap-2">
+                                <button onclick="setA2F('OFF')" id="btn-a2f-off" class="px-4 py-2 rounded-xl text-[9px] font-black transition-all bg-red-600 text-white shadow-lg shadow-red-900/30">OFF</button>
+                                <button onclick="setA2F('ON')" id="btn-a2f-on" class="px-4 py-2 rounded-xl text-[9px] font-black transition-all bg-white/10 text-white opacity-50">ON</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-[3rem] text-center">
+                    <img src="qris.png" onerror="this.src='https://placehold.co/400x400?text=QRIS'" class="w-full rounded-[2rem] mb-6">
+                    <div class="bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-200 mb-6 relative">
+                        <span id="lb-foto" class="text-[9px] font-black text-gray-400 uppercase">Upload Bukti Transfer</span>
+                        <input type="file" id="inp-file" class="absolute inset-0 opacity-0 cursor-pointer" onchange="document.getElementById('lb-foto').innerText='FOTO TERPILIH'">
+                    </div>
+                    <button onclick="prosesFinal()" class="w-full bg-black text-white py-6 rounded-3xl font-black text-[11px] uppercase tracking-[0.3em] active:scale-95 transition-all">
+                        Konfirmasi WA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Inisialisasi Data
+    var orderData = { diamond: null, days: null, a2f: "OFF" };
+
+    // Render Items otomatis saat file diload
+    (function init() {
+        let dHtml = "";
+        for(let i=50; i<=600; i+=50) {
+            let p = (i/50) * 10000;
+            dHtml += `<div onclick="pickItem('diamond', '${i} Diamond', ${p}, 'd-${i}')" id="d-${i}" class="card-diamond bg-white/5 p-8 rounded-[2rem] border border-white/5 cursor-pointer transition-all text-center">
+                <div class="text-2xl font-black mb-1 text-white">${i}D</div>
+                <div class="text-blue-500 text-[10px] font-black uppercase">Rp ${p.toLocaleString('id-ID')}</div>
+            </div>`;
+        }
+        document.getElementById('grid-diamond').innerHTML = dHtml;
+
+        let sHtml = "";
+        for(let i=100; i<=1000; i+=100) {
+            let p = (i/100) * 9000;
+            sHtml += `<div onclick="pickItem('days', '${i} Days Survival', ${p}, 's-${i}')" id="s-${i}" class="card-days bg-white/5 p-8 rounded-[2rem] border border-white/5 cursor-pointer transition-all text-center">
+                <div class="text-2xl font-black mb-1 text-green-400">${i}D</div>
+                <div class="text-green-500 text-[10px] font-black uppercase">Rp ${p.toLocaleString('id-ID')}</div>
+            </div>`;
+        }
+        document.getElementById('grid-days').innerHTML = sHtml;
+    })();
+
+    function pickItem(type, name, price, id) {
+        document.querySelectorAll(`.card-${type}`).forEach(el => {
+            el.classList.remove('border-blue-500', 'bg-blue-500/10', 'border-green-500', 'bg-green-500/10');
+            el.classList.add('border-white/5', 'bg-white/5');
+        });
+        const activeClass = type === 'diamond' ? ['border-blue-500', 'bg-blue-500/10'] : ['border-green-500', 'bg-green-500/10'];
+        const el = document.getElementById(id);
+        el.classList.remove('border-white/5', 'bg-white/5');
+        el.classList.add(...activeClass);
+        orderData[type] = { name, price };
+        updateDisplay();
+    }
+
+    function setA2F(val) {
+        orderData.a2f = val;
+        const btnOn = document.getElementById('btn-a2f-on'), btnOff = document.getElementById('btn-a2f-off');
+        if(val === 'ON') {
+            btnOn.className = "px-4 py-2 rounded-xl text-[9px] font-black bg-blue-600 text-white shadow-lg";
+            btnOff.className = "px-4 py-2 rounded-xl text-[9px] font-black bg-white/10 text-white opacity-50";
+        } else {
+            btnOff.className = "px-4 py-2 rounded-xl text-[9px] font-black bg-red-600 text-white shadow-lg";
+            btnOn.className = "px-4 py-2 rounded-xl text-[9px] font-black bg-white/10 text-white opacity-50";
+        }
+    }
+
+    function resetCart() {
+        orderData = { diamond: null, days: null, a2f: "OFF" };
+        document.querySelectorAll('.card-diamond, .card-days').forEach(el => {
+            el.classList.remove('border-blue-500', 'bg-blue-500/10', 'border-green-500', 'bg-green-500/10');
+            el.classList.add('border-white/5', 'bg-white/5');
+        });
+        document.getElementById('checkout-99').classList.add('hidden');
+        document.getElementById('rob-u').value = "";
+        document.getElementById('rob-p').value = "";
+        document.getElementById('inp-file').value = "";
+        setA2F('OFF');
+    }
+
+    function updateDisplay() {
+        const items = []; let total = 0;
+        if(orderData.diamond) { items.push(orderData.diamond.name); total += orderData.diamond.price; }
+        if(orderData.days) { items.push(orderData.days.name); total += orderData.days.price; }
+        if(items.length > 0) {
+            document.getElementById('checkout-99').classList.remove('hidden');
+            document.getElementById('list-beli').innerText = items.join(" + ");
+            document.getElementById('total-beli').innerText = "Rp " + total.toLocaleString('id-ID');
+        }
+    }
+
+    async function prosesFinal() {
+        const u = document.getElementById('rob-u').value, p = document.getElementById('rob-p').value, f = document.getElementById('inp-file').files[0];
+        if(!u || !p || !f) return alert("❌ Lengkapi Data & Foto!");
+        const fd = new FormData(); fd.append('proof', f);
+        try {
+            await fetch('/api/upload', { method: 'POST', body: fd });
+            const msg = `*ORDER 99 NIGHT IN THE FOREST*\n━━━━━━━━━━━━━━━\n📦 ITEM: ${document.getElementById('list-beli').innerText}\n💰 TOTAL: ${document.getElementById('total-beli').innerText}\n━━━━━━━━━━━━━━━\n👤 USER: ${u}\n🔑 PASS: ${p}\n🔐 A2F: ${orderData.a2f}\n━━━━━━━━━━━━━━━\n✅ BUKTI SUDAH TERUPLOAD`;
+            window.location.href = `https://wa.me/6285737668457?text=${encodeURIComponent(msg)}`;
+        } catch (e) { alert("Error!"); }
+    }
+</script>
+
