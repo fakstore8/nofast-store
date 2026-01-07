@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>No Fa$t | Store</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://accounts.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https://lh3.googleusercontent.com; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com;">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
-        body { background: #050505; color: white; font-family: sans-serif; }
+        /* KEAMANAN: user-select none mencegah orang menyorot/copy teks */
+        body { background: #050505; color: white; font-family: sans-serif; user-select: none; }
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
     <nav class="nav-glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
         <div class="text-2xl font-black italic cursor-pointer" onclick="loadPage('beranda')">
             NO <span class="text-blue-500">FA$T</span>
@@ -46,9 +51,15 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
+        // KEAMANAN: Memblokir F12, Ctrl+Shift+I, dan Ctrl+U (View Source)
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
+            }
+        };
+
         // Fungsi Handle Login Google
         function handleCredentialResponse(response) {
-            // Mendekode JWT Payload untuk mengambil info user
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
             localStorage.setItem('user_nofast', JSON.stringify(payload));
             renderUser(payload);
@@ -82,7 +93,6 @@
                 const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
-                // Menjalankan script yang ada di dalam file yang di-load
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
