@@ -10,22 +10,55 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
-        /* Desain tetap asli, ditambah proteksi Copy */
-        body { background: #050505; color: white; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
-        .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .animate-fade { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Desain & Keamanan CSS */
+        body { 
+            background: #050505; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            user-select: none; /* Anti-Copy */
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .nav-glass { 
+            background: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(12px); 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        .btn-premium {
+            background: linear-gradient(45deg, #1e40af, #3b82f6);
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .animate-fade { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
+
 <body oncontextmenu="return false;">
     <nav class="nav-glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black italic cursor-pointer" onclick="loadPage('beranda')">
+        <div class="text-2xl font-black italic cursor-pointer tracking-tighter" onclick="loadPage('beranda')">
             NO <span class="text-blue-500">FA$T</span>
         </div>
         
-        <div class="flex items-center gap-4">
-            <button onclick="loadPage('katalog')" class="text-[10px] font-black uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition">
+        <div class="flex items-center gap-6">
+            <button onclick="loadPage('katalog')" class="text-[11px] font-bold uppercase tracking-[0.2em] hover:text-blue-400 transition">
                 Katalog
             </button>
             
@@ -38,9 +71,9 @@
                 <div class="g_id_signin" 
                     data-type="standard" 
                     data-shape="pill" 
-                    data-theme="outline" 
+                    data-theme="filled_black" 
                     data-text="signin_with" 
-                    data-size="small" 
+                    data-size="medium" 
                     data-logo_alignment="left">
                 </div>
             </div>
@@ -49,51 +82,58 @@
 
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
+    <footer class="p-10 border-t border-white/5 text-center text-gray-600 text-xs">
+        &copy; 2026 NO FA$T STORE. All Rights Reserved.
+    </footer>
+
     <script>
-        // KEAMANAN: Anti-Inspect (F12, Ctrl+U, dll)
+        // 1. KEAMANAN: Anti-Inspect Element
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+            // Blokir F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if(e.keyCode == 123 || 
+              (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+              (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
 
-        // Fungsi Handle Login Google
+        // 2. HANDLE LOGIN GOOGLE
         function handleCredentialResponse(response) {
-            // Mendekode JWT Payload untuk mengambil info user
+            // Decode data user dari Google
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
             localStorage.setItem('user_nofast', JSON.stringify(payload));
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User Setelah Login
+        // 3. TAMPILKAN USER SETELAH LOGIN
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
-                <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
-                    <img src="${user.picture}" class="w-7 h-7 rounded-full shadow-lg" alt="profile">
-                    <span class="text-[9px] font-black uppercase tracking-tighter">${user.given_name}</span>
-                    <button onclick="logout()" class="ml-1 text-red-500 text-[10px] hover:text-red-400">
-                        <i class="fas fa-power-off"></i>
-                    </button>
+                <div class="flex items-center gap-3 bg-white/5 p-1 pr-4 rounded-full border border-white/10">
+                    <img src="${user.picture}" class="w-8 h-8 rounded-full border border-blue-500/50 shadow-lg" alt="profile">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-tight">${user.given_name}</span>
+                        <button onclick="logout()" class="text-[9px] text-red-500 hover:text-red-400 text-left uppercase font-bold">Logout</button>
+                    </div>
                 </div>`;
         }
 
-        // Fungsi Logout
+        // 4. LOGOUT
         function logout() {
             localStorage.removeItem('user_nofast');
             location.reload();
         }
 
-        // Fungsi Load Halaman Dinamis
+        // 5. LOAD HALAMAN DINAMIS (SPA)
         async function loadPage(page) {
+            const contentDiv = document.getElementById('content');
             try {
                 const res = await fetch(`pages/${page}.html`);
-                if (!res.ok) throw new Error('Halaman tidak ditemukan');
+                if (!res.ok) throw new Error('Not Found');
                 
                 const html = await res.text();
-                const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
-                // Menjalankan script yang ada di dalam file yang di-load
+                // Aktifkan script yang ada di halaman tujuan
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -101,17 +141,21 @@
                     document.body.appendChild(newScript).parentNode.removeChild(newScript);
                 });
             } catch (e) { 
-                console.error(e);
-                document.getElementById('content').innerHTML = `<div class="text-center mt-20 text-gray-500 font-bold">404 - Halaman "${page}" Belum Tersedia.</div>`;
+                contentDiv.innerHTML = `
+                    <div class="flex flex-col items-center justify-center mt-20 opacity-20">
+                        <i class="fas fa-folder-open text-6xl mb-4"></i>
+                        <p class="font-bold uppercase tracking-widest">Halaman ${page}.html Tidak Ditemukan</p>
+                    </div>`;
             }
         }
 
-        // Inisialisasi Saat Halaman Dimuat
+        // 6. JALANKAN SAAT WEBSITE DIBUKA
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
                 renderUser(JSON.parse(savedUser));
             }
+            // Langsung buka beranda.html
             loadPage('beranda');
         };
     </script>
