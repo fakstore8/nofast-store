@@ -12,8 +12,14 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <style>
-        /* KEAMANAN: user-select none mencegah orang menyorot/copy teks */
-        body { background: #050505; color: white; font-family: sans-serif; user-select: none; }
+        /* 2. KEAMANAN: Mencegah seleksi teks (Anti-Copy) */
+        body { 
+            background: #050505; 
+            color: white; 
+            font-family: sans-serif; 
+            user-select: none; 
+            -webkit-user-select: none;
+        }
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -51,9 +57,11 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
-        // KEAMANAN: Memblokir F12, Ctrl+Shift+I, dan Ctrl+U (View Source)
+        // 4. KEAMANAN: Memblokir F12, Inspect Element (Ctrl+Shift+I), dan View Source (Ctrl+U)
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+            if(e.keyCode == 123 || 
+              (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+              (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
@@ -65,7 +73,7 @@
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User Setelah Login
+        // Menampilkan Profil User
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -77,13 +85,12 @@
                 </div>`;
         }
 
-        // Fungsi Logout
         function logout() {
             localStorage.removeItem('user_nofast');
             location.reload();
         }
 
-        // Fungsi Load Halaman Dinamis
+        // Load Halaman Dinamis (SPA)
         async function loadPage(page) {
             try {
                 const res = await fetch(`pages/${page}.html`);
@@ -93,6 +100,7 @@
                 const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
+                // Menjalankan script di dalam halaman yang di-load
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -105,7 +113,6 @@
             }
         }
 
-        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
