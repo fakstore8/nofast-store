@@ -10,16 +10,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <style>
-        /* 2. KEAMANAN: Mencegah seleksi teks (Anti-Copy) */
-        body { 
-            background: #050505; 
-            color: white; 
-            font-family: sans-serif; 
-            user-select: none; 
-            -webkit-user-select: none;
-        }
+        /* Desain tetap asli, ditambah proteksi Copy */
+        body { background: #050505; color: white; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -57,23 +50,22 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
-        // 4. KEAMANAN: Memblokir F12, Inspect Element (Ctrl+Shift+I), dan View Source (Ctrl+U)
+        // KEAMANAN: Anti-Inspect (F12, Ctrl+U, dll)
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || 
-              (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
-              (e.ctrlKey && e.keyCode == 85)) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
 
         // Fungsi Handle Login Google
         function handleCredentialResponse(response) {
+            // Mendekode JWT Payload untuk mengambil info user
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
             localStorage.setItem('user_nofast', JSON.stringify(payload));
             renderUser(payload);
         }
 
-        // Menampilkan Profil User
+        // Fungsi Menampilkan Profil User Setelah Login
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -85,12 +77,13 @@
                 </div>`;
         }
 
+        // Fungsi Logout
         function logout() {
             localStorage.removeItem('user_nofast');
             location.reload();
         }
 
-        // Load Halaman Dinamis (SPA)
+        // Fungsi Load Halaman Dinamis
         async function loadPage(page) {
             try {
                 const res = await fetch(`pages/${page}.html`);
@@ -100,7 +93,7 @@
                 const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
-                // Menjalankan script di dalam halaman yang di-load
+                // Menjalankan script yang ada di dalam file yang di-load
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -113,6 +106,7 @@
             }
         }
 
+        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
