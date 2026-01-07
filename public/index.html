@@ -8,30 +8,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* Desain asli sesuai kode awal Anda */
+        /* CSS ASLI ANDA */
         body { 
             background: #050505; 
             color: white; 
             font-family: sans-serif; 
-            
-            /* KEAMANAN 1: Anti-Copy & Anti-Highlight */
+            /* Proteksi Ringan: Mencegah teks di-copy (Tidak buat hitam) */
             user-select: none; 
             -webkit-user-select: none;
-            -ms-user-select: none;
         }
-        
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* KEAMANAN 2: Anti-Drag Gambar (Mencegah gambar dicuri dengan cara ditarik) */
-        img { 
-            pointer-events: none; 
-            -webkit-user-drag: none;
-        }
+        
+        /* Proteksi Gambar: Mencegah gambar ditarik */
+        img { pointer-events: none; -webkit-user-drag: none; }
     </style>
 </head>
-<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+<body oncontextmenu="return false;">
     <nav class="nav-glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
         <div class="text-2xl font-black italic cursor-pointer" onclick="loadPage('beranda')">
             NO <span class="text-blue-500">FA$T</span>
@@ -44,7 +38,6 @@
             
             <div id="auth-box">
                 <div id="g_id_onload"
-                    /* CLIENT ID TERBARU ANDA */
                     data-client_id="502358231350-3ai1ptktpcvtk6o70kcc6ockv3dt71jm.apps.googleusercontent.com"
                     data-callback="handleCredentialResponse"
                     data-auto_prompt="false">
@@ -71,7 +64,6 @@
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -91,6 +83,7 @@
         // Fungsi Load Halaman Dinamis
         async function loadPage(page) {
             try {
+                // Pastikan file ada di folder public/pages/beranda.html
                 const res = await fetch(`pages/${page}.html`);
                 if (!res.ok) throw new Error('Halaman tidak ditemukan');
                 
@@ -107,9 +100,10 @@
             } catch (e) { 
                 console.error(e);
                 document.getElementById('content').innerHTML = `
-                    <div class="text-center mt-20 text-gray-500 font-bold uppercase">
-                        404 - Halaman "${page}" Tidak Ditemukan
-                    </div>`;
+                <div class="text-center mt-20 text-gray-500">
+                    <p class="font-bold uppercase tracking-widest">404 - File Tidak Ditemukan</p>
+                    <p class="text-sm mt-2">Pastikan folder "pages" berisi file "${page}.html"</p>
+                </div>`;
             }
         }
 
