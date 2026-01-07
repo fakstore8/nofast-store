@@ -8,25 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { background: #050505; color: white; font-family: sans-serif; overflow-x: hidden; }
+        body { background: #050505; color: white; font-family: sans-serif; }
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Custom scrollbar agar tetap estetik gelap */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
     </style>
 </head>
 <body>
     <nav class="nav-glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black italic cursor-pointer tracking-tighter" onclick="loadPage('beranda')">
+        <div class="text-2xl font-black italic cursor-pointer" onclick="loadPage('beranda')">
             NO <span class="text-blue-500">FA$T</span>
         </div>
         
         <div class="flex items-center gap-4">
-            <button onclick="loadPage('katalog')" class="text-[10px] font-black uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition duration-300">
+            <button onclick="loadPage('katalog')" class="text-[10px] font-black uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition">
                 Katalog
             </button>
             
@@ -39,7 +34,7 @@
                 <div class="g_id_signin" 
                     data-type="standard" 
                     data-shape="pill" 
-                    data-theme="filled_black" 
+                    data-theme="outline" 
                     data-text="signin_with" 
                     data-size="small" 
                     data-logo_alignment="left">
@@ -53,29 +48,19 @@
     <script>
         // Fungsi Handle Login Google
         function handleCredentialResponse(response) {
-            try {
-                // Mendekode JWT Payload
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const payload = JSON.parse(window.atob(base64));
-                
-                localStorage.setItem('user_nofast', JSON.stringify(payload));
-                renderUser(payload);
-            } catch (error) {
-                console.error("Gagal login:", error);
-            }
+            // Mendekode JWT Payload untuk mengambil info user
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            localStorage.setItem('user_nofast', JSON.stringify(payload));
+            renderUser(payload);
         }
 
-        // Tampilkan Profil User
+        // Fungsi Menampilkan Profil User Setelah Login
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
-                <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10 animate-fade">
-                    <img src="${user.picture}" class="w-7 h-7 rounded-full border border-blue-500/50 shadow-lg">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-black uppercase tracking-tighter leading-none">${user.given_name}</span>
-                        <span class="text-[7px] text-gray-500 truncate max-w-[60px]">${user.email}</span>
-                    </div>
-                    <button onclick="logout()" class="ml-1 text-red-500 text-[10px] hover:scale-110 transition">
+                <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
+                    <img src="${user.picture}" class="w-7 h-7 rounded-full shadow-lg" alt="profile">
+                    <span class="text-[9px] font-black uppercase tracking-tighter">${user.given_name}</span>
+                    <button onclick="logout()" class="ml-1 text-red-500 text-[10px] hover:text-red-400">
                         <i class="fas fa-power-off"></i>
                     </button>
                 </div>`;
@@ -89,15 +74,15 @@
 
         // Fungsi Load Halaman Dinamis
         async function loadPage(page) {
-            const contentDiv = document.getElementById('content');
             try {
                 const res = await fetch(`pages/${page}.html`);
-                if (!res.ok) throw new Error('Not Found');
+                if (!res.ok) throw new Error('Halaman tidak ditemukan');
                 
                 const html = await res.text();
+                const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
-                // Re-eksekusi script di halaman yang di-load
+                // Menjalankan script yang ada di dalam file yang di-load
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -105,15 +90,12 @@
                     document.body.appendChild(newScript).parentNode.removeChild(newScript);
                 });
             } catch (e) { 
-                contentDiv.innerHTML = `
-                <div class="flex flex-col items-center justify-center mt-20 opacity-50">
-                    <i class="fas fa-ghost text-4xl mb-4"></i>
-                    <p class="font-bold tracking-widest text-xs uppercase">Halaman "${page}" Belum Dibuat</p>
-                </div>`;
+                console.error(e);
+                document.getElementById('content').innerHTML = `<div class="text-center mt-20 text-gray-500 font-bold">404 - Halaman "${page}" Belum Tersedia.</div>`;
             }
         }
 
-        // Inisialisasi
+        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
