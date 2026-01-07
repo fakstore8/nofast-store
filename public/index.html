@@ -10,13 +10,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
-        /* CSS Asli Anda */
+        /* Desain asli Anda */
         body { 
             background: #050505; 
             color: white; 
             font-family: sans-serif; 
-            /* Tambahan Keamanan: Mencegah sorot teks */
+            /* Proteksi: Mencegah seleksi teks/Copy */
             user-select: none; 
             -webkit-user-select: none;
         }
@@ -57,9 +58,11 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
-        // KEAMANAN: Memblokir F12, Ctrl+U (View Source), dan Inspect Element
+        // PROTEKSI: Memblokir F12, Ctrl+U (Source Code), dan Inspect Element
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+            if(e.keyCode == 123 || 
+              (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+              (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
@@ -71,7 +74,7 @@
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User Setelah Login
+        // Menampilkan profil user setelah login
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -89,9 +92,10 @@
             location.reload();
         }
 
-        // Fungsi Load Halaman Dinamis
+        // Fungsi Pemuatan Halaman Dinamis
         async function loadPage(page) {
             try {
+                // Mencari file di folder pages
                 const res = await fetch(`pages/${page}.html`);
                 if (!res.ok) throw new Error('Halaman tidak ditemukan');
                 
@@ -99,6 +103,7 @@
                 const contentDiv = document.getElementById('content');
                 contentDiv.innerHTML = `<div class="animate-fade">${html}</div>`;
                 
+                // Menjalankan script yang ada di dalam file eksternal
                 const scripts = contentDiv.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -107,16 +112,20 @@
                 });
             } catch (e) { 
                 console.error(e);
-                document.getElementById('content').innerHTML = `<div class="text-center mt-20 text-gray-500 font-bold">404 - Halaman "${page}" Belum Tersedia.</div>`;
+                document.getElementById('content').innerHTML = `
+                    <div class="text-center mt-20 text-gray-500 font-bold uppercase tracking-widest">
+                        404 - Halaman "${page}" Belum Tersedia.
+                    </div>`;
             }
         }
 
-        // Inisialisasi Saat Halaman Dimuat
+        // Menjalankan fungsi saat website dibuka pertama kali
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
                 renderUser(JSON.parse(savedUser));
             }
+            // Memanggil beranda.html secara otomatis
             loadPage('beranda');
         };
     </script>
