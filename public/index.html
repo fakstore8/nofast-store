@@ -4,28 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>No Fa$t | Store</title>
-    
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://accounts.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https://lh3.googleusercontent.com; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com;">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* Desain asli Anda */
+        /* Desain asli sesuai kode awal Anda */
         body { 
             background: #050505; 
             color: white; 
             font-family: sans-serif; 
-            /* Anti-Copy */
+            
+            /* KEAMANAN 1: Anti-Copy & Anti-Highlight */
             user-select: none; 
             -webkit-user-select: none;
+            -ms-user-select: none;
         }
+        
         .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* KEAMANAN 2: Anti-Drag Gambar (Mencegah gambar dicuri dengan cara ditarik) */
+        img { 
+            pointer-events: none; 
+            -webkit-user-drag: none;
+        }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
     <nav class="nav-glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
         <div class="text-2xl font-black italic cursor-pointer" onclick="loadPage('beranda')">
             NO <span class="text-blue-500">FA$T</span>
@@ -38,7 +44,7 @@
             
             <div id="auth-box">
                 <div id="g_id_onload"
-                    /* CLIENT ID YANG SUDAH DIGANTI */
+                    /* CLIENT ID TERBARU ANDA */
                     data-client_id="502358231350-3ai1ptktpcvtk6o70kcc6ockv3dt71jm.apps.googleusercontent.com"
                     data-callback="handleCredentialResponse"
                     data-auto_prompt="false">
@@ -58,13 +64,6 @@
     <main id="content" class="max-w-7xl mx-auto p-6 min-h-screen"></main>
 
     <script>
-        // KEAMANAN: Memblokir F12, Ctrl+U, dan Inspect Element
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
-                return false;
-            }
-        };
-
         // Fungsi Handle Login Google
         function handleCredentialResponse(response) {
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -72,7 +71,7 @@
             renderUser(payload);
         }
 
-        // Fungsi Menampilkan Profil User Setelah Login
+        // Fungsi Menampilkan Profil User
         function renderUser(user) {
             document.getElementById('auth-box').innerHTML = `
                 <div class="flex items-center gap-2 bg-white/5 p-1 pr-3 rounded-full border border-white/10">
@@ -84,7 +83,6 @@
                 </div>`;
         }
 
-        // Fungsi Logout
         function logout() {
             localStorage.removeItem('user_nofast');
             location.reload();
@@ -93,7 +91,6 @@
         // Fungsi Load Halaman Dinamis
         async function loadPage(page) {
             try {
-                // Mengambil file dari folder pages/ yang ada di dalam public/
                 const res = await fetch(`pages/${page}.html`);
                 if (!res.ok) throw new Error('Halaman tidak ditemukan');
                 
@@ -110,13 +107,12 @@
             } catch (e) { 
                 console.error(e);
                 document.getElementById('content').innerHTML = `
-                    <div class="text-center mt-20 text-gray-500 font-bold uppercase tracking-widest">
-                        404 - Halaman "${page}" Belum Tersedia.
+                    <div class="text-center mt-20 text-gray-500 font-bold uppercase">
+                        404 - Halaman "${page}" Tidak Ditemukan
                     </div>`;
             }
         }
 
-        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             const savedUser = localStorage.getItem('user_nofast');
             if (savedUser) {
